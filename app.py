@@ -7,6 +7,8 @@ import os
 import shutil
 import threading
 
+from eventlet import tpool
+
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, disconnect
 
@@ -38,8 +40,8 @@ def index():
 
 @socketio.on('copy_file', namespace='/test')
 def copy_file():
-    """ Select ONE of the below options """
-    option = "native"  # native, threading, multiprocessing
+    """ Select one of the below options """
+    option = "multiprocessing"  # native, threading, multiprocessing
 
     if option == "native":
         socketio.start_background_task(target=copy_large_file)
@@ -51,6 +53,9 @@ def copy_file():
     if option == "threading":
         thread = threading.Thread(target=copy_large_file)
         thread.start()
+
+    if option == "eventlet":
+        tpool.execute(copy_large_file)
 
     emit('my_response', {'data': 'Copy request received'})
 
