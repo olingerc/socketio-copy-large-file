@@ -21,13 +21,13 @@ def copy_large_file():
     source = "/home/christophe/Desktop/largefile"
     destination = "/home/christophe/Desktop/largefile2"
     try:
-        os.remove(destination)
+        tpool.execute(os.remove, destination)
     except:
         pass
     print("Before copy")
     socketio.emit('my_response',
                   {'data': 'Thread says: before'}, namespace='/test')
-    shutil.copy(source, destination)
+    tpool.execute(shutil.copy, source, destination)
     print("After copy")
     socketio.emit('my_response',
                   {'data': 'Thread says: after'}, namespace='/test')
@@ -41,7 +41,7 @@ def index():
 @socketio.on('copy_file', namespace='/test')
 def copy_file():
     """ Select one of the below options """
-    option = "eventlet"  # native, threading, multiprocessing
+    option = "native"  # native, threading, multiprocessing
 
     if option == "native":
         socketio.start_background_task(target=copy_large_file)
@@ -57,24 +57,24 @@ def copy_file():
     if option == "eventlet":
         tpool.execute(copy_large_file)
 
-    emit('my_response', {'data': 'Copy request received'})
+    emit('my_response', {'data': 'Copy request received'}, namespace='/test')
 
 
 @socketio.on('ping', namespace='/test')
 def ping():
     print("Ping received")
-    emit('my_response', {'data': 'Pong'})
+    emit('my_response', {'data': 'Pong'}, namespace='/test')
 
 
 @socketio.on('disconnect_request', namespace='/test')
 def disconnect_request():
-    emit('my_response', {'data': 'Disconnected!'})
+    emit('my_response', {'data': 'Disconnected!'}, namespace='/test')
     disconnect()
 
 
 @socketio.on('connect', namespace='/test')
 def connect():
-    emit('my_response', {'data': 'Connected'})
+    emit('my_response', {'data': 'Connected'}, namespace='/test')
 
 
 @socketio.on('disconnect', namespace='/test')
