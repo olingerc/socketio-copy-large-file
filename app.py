@@ -41,7 +41,7 @@ def index():
 @socketio.on('copy_file', namespace='/test')
 def copy_file():
     """ Select one of the below options """
-    option = "multiprocessing"  # native, threading, multiprocessing
+    option = "eventlet"  # native, threading, multiprocessing
 
     if option == "native":
         socketio.start_background_task(target=copy_large_file)
